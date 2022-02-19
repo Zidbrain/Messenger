@@ -4,18 +4,33 @@ using System.Text.Json.Serialization;
 
 namespace Messenger.Models
 {
+    /// <summary>
+    /// Сообщение
+    /// </summary>
     public partial class Message
     {
         [JsonIgnore]
         public Guid Id { get; set; }
 
+        /// <summary>
+        /// Индетификатор отправителя
+        /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Guid UserFrom { get; set; }
-
+       
+        /// <summary>
+        /// Индетификатор получателя
+        /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Guid UserTo { get; set; }
 
+        /// <summary>
+        /// Тип сообщения
+        /// </summary>
         public MessageType MessageType { get; set; }
+        /// <summary>
+        /// Содержание сообщения
+        /// </summary>
         public string? Content { get; set; }
 
         [JsonIgnore]

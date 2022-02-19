@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Messenger.Models
 {
+    /// <summary>
+    /// Информация о пользователе
+    /// </summary>
     public partial class AuthUser
     {
         public AuthUser()
@@ -21,8 +25,16 @@ namespace Messenger.Models
 
         public static byte[] GetHash(string password) =>
              SHA256.HashData(Encoding.UTF8.GetBytes(password));
-
+        
+        /// <summary>
+        /// UUID пользователя.
+        /// </summary>
+        [Required]
         public Guid Id { get; set; }
+        /// <summary>
+        /// Имя пользователя.
+        /// </summary>
+        [Required]
         public string Username { get; set; } = null!;
 
         [JsonIgnore]
