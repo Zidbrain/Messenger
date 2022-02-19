@@ -3,7 +3,7 @@ Simple messenger app backend
 
 ## Найстройка и запуск
 1. Скачать и установить [MySQL](https://dev.mysql.com/downloads/windows/installer/8.0.html). (Установить Server и Workbench)
-2. Добавить схему [messenger](https://github.com/Zidbrain/Messenger/blob/42da86f7f85dbc27d0964a216d538e1307919342/Messenger/messenger.sql).
+2. Добавить схему [messenger](Messenger/messenger.sql).
 3. Настроить подключение в appsettings.json
     - В поле "MessengerContext" добавить имя пользователя и пароль для подключения к базе данных в виде uid={имя пользователя};pwd={пароль}.
     - При необходимости изменить название базы данных и порт. 
