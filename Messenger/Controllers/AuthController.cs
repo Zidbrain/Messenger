@@ -5,10 +5,26 @@ using System.ComponentModel;
 
 namespace Messenger.Controllers;
 
+/// <summary>
+/// Модель пользователя для хранения внутри сервера
+/// </summary>
 public class TrackUser
 {
+    /// <summary>
+    /// Индетификатор пользователя
+    /// </summary>
     public Guid Id { get; set; }
+
+    /// <summary>
+    /// Хэшированный пароль пользователя
+    /// </summary>
     public byte[] Password { get; set; }
+
+    /// <summary>
+    /// Стандартный конструктор.
+    /// </summary>
+    /// <param name="id">Индетификатор пользователя</param>
+    /// <param name="password">Хэшированный пароль пользователя</param>
 
     public TrackUser(Guid id, byte[] password) => (Id, Password) = (id, password);
 
@@ -20,19 +36,41 @@ public class TrackUser
 }
 
 
+/// <summary>
+/// Контроллер авторизации пользователей.
+/// </summary>
 [Route("[controller]")]
 [ApiController]
+[Produces("application/json")]
 public class AuthController : ControllerBase
 {
     private readonly MessengerContext _context;
 
+    /// <summary>
+    /// Стандартный конструктор
+    /// </summary>
+    /// <param name="context"></param>
     public AuthController(MessengerContext context)
     {
        _context = context;
     }
 
+    /// <summary>
+    /// Получить токен аунтетификации пользователя.
+    /// </summary>
+    /// <param name="user">Данные пользователя</param>
+    /// <returns>Токен аунтетификации</returns>
+    /// <response code="400">Неправильное имя пользователя или пароль</response>
+    /// <remarks>
+    /// Пример запроса:
+    ///     POST /Auth
+    ///     {
+    ///         "username": "user",
+    ///         "password": "password"
+    ///     }
+    /// </remarks>
     [HttpPost]
-    public async Task<IActionResult> Get([FromBody] UserInfoBody user)
+    public async Task<IActionResult> Get([FromBody] UserAuthInfo user)
     {
         var identity = await GetIdentity(user.Username, user.Password);
         if (identity == null)

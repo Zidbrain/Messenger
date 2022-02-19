@@ -1,20 +1,24 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Messenger;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddOptions();
 builder.Services.AddDbContext<MessengerContext>(options =>
 {
 });
 builder.Services.AddMessenger();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
+});
 
 builder.Services.AddAuthentication(options =>
 {
@@ -40,7 +44,6 @@ builder.Services.AddLogging(options => options.AddConsole());
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
