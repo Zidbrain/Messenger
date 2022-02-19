@@ -1,0 +1,9 @@
+﻿global using Messenger.Models;
+global using System.Security.Cryptography;
+global using System.Text;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.EntityFrameworkCore;
+global using System.IdentityModel.Tokens.Jwt;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.IdentityModel.Tokens;
+global using Microsoft.AspNetCore.Authentication;
