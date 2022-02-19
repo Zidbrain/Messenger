@@ -23,9 +23,16 @@ namespace Messenger.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json")
+                    .Build();
+
+                var connection = configuration.GetConnectionString("MessengerContext");
+
                 optionsBuilder
                     .UseLazyLoadingProxies()
-                    .UseMySql("server=localhost;port=3306;database=Messenger;uid=root", ServerVersion.Parse("8.0.27-mysql"));
+                    .UseMySql(connection, ServerVersion.Parse("8.0.27-mysql"));
             }
         }
 
