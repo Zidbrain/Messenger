@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Messenger;
 using System.Reflection;
+using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,11 +45,13 @@ builder.Services.AddLogging(options => options.AddConsole());
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+var options = new RewriteOptions();
+options.AddRedirect("^$", "swagger");
+app.UseRewriter(options);
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.UseWebSockets(new WebSocketOptions() { KeepAliveInterval = TimeSpan.FromSeconds(10) });
 
 app.UseHttpsRedirection();
