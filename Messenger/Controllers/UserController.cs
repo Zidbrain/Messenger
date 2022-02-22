@@ -10,11 +10,17 @@ namespace Messenger.Controllers;
 /// </summary>
 /// <param name="Username">Имя пользователя</param>
 /// <param name="Password">Пароль пользователя</param>
-public record class UserAuthInfo(
-    [property: Required]
-    string Username,
-    [property: Required]
-    string Password);
+public record class UserAuthInfo
+{
+    [Required]
+    public string Username { get; set; }
+
+    [Required]
+    public string Password { get; set; }
+
+    public UserAuthInfo(string username, string password) =>
+        (Username, Password) = (username, password);
+}
 
 /// <summary>
 /// Контроллер информации о пользователях
