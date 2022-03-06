@@ -13,28 +13,34 @@ namespace Messenger.Models
         public Guid Id { get; set; }
 
         /// <summary>
-        /// Индетификатор отправителя
+        /// Пользователь, отправивший сообщение.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Guid UserFrom { get; set; }
-       
+
         /// <summary>
-        /// Индетификатор получателя
+        /// Пользователь, кому назначено сообщение.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Guid UserTo { get; set; }
 
         /// <summary>
-        /// Тип сообщения
+        /// Тип сообщения.
         /// </summary>
         public MessageType MessageType { get; set; }
+
         /// <summary>
-        /// Содержание сообщения
+        /// Содержание сообщения.
         /// </summary>
         public string? Content { get; set; }
 
         [JsonIgnore]
         public bool IsDelivered { get; set; }
+
+        /// <summary>
+        /// Дата отправки сообщения.
+        /// </summary>
+        public DateTime DateSent { get; set; }
 
         [JsonIgnore]
         public virtual AuthUser UserFromNavigation { get; set; } = null!;

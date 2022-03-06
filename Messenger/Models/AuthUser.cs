@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using System.Security.Cryptography;
+using System.ComponentModel.DataAnnotations;
 
 namespace Messenger.Models
 {
@@ -18,21 +19,26 @@ namespace Messenger.Models
 
         public AuthUser(string username, string password) : this()
         {
-            Id = Guid.NewGuid();
             Username = username;
+            Salt = Convert.ToBase64String(RandomNumberGenerator.GetBytes(6));
             Password = GetHash(password);
         }
 
-        public static byte[] GetHash(string password) =>
-             SHA256.HashData(Encoding.UTF8.GetBytes(password));
-        
+        public bool CheckHash(string password, out byte[] hashedPassword)
+        {
+            hashedPassword = GetHash(password);
+            return hashedPassword.SequenceEqual(Password);
+        }
+
+        public byte[] GetHash(string password) => 
+            SHA512.HashData(Encoding.Unicode.GetBytes(password.Insert(password.Length / 2, Salt)));
+
         /// <summary>
-        /// UUID пользователя.
+        /// Индетификатор пользователя
         /// </summary>
-        [Required]
         public Guid Id { get; set; }
         /// <summary>
-        /// Имя пользователя.
+        /// Логин пользователя
         /// </summary>
         [Required]
         public string Username { get; set; } = null!;
@@ -41,7 +47,12 @@ namespace Messenger.Models
         public byte[] Password { get; set; } = null!;
 
         [JsonIgnore]
+        public string Salt { get; set; } = null!;
+
+        [JsonIgnore]
         public string ImageSrc { get; set; } = null!;
+        public string? PhoneNumber { get; set; }
+        public string? Status { get; set; }
 
         [JsonIgnore]
         public virtual ICollection<Message> MessageUserFromNavigations { get; set; }

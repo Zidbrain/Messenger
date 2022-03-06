@@ -95,9 +95,11 @@ public class AuthController : ControllerBase
 
     private async Task<ClaimsIdentity?> GetIdentity(string username, string password)
     {
-        var hash = AuthUser.GetHash(password);
-        var dbuser = await _context.AuthUsers.FirstOrDefaultAsync(x => x.Username == username && x.Password.SequenceEqual(hash));
-        if (dbuser == null)
+        var dbuser = await _context.AuthUsers.FirstOrDefaultAsync(x => x.Username == username);
+        if (dbuser is null)
+            return null;
+
+        if (!dbuser.CheckHash(password, out var hash))
             return null;
 
         var user = new TrackUser(dbuser.Id, hash); 

@@ -27,8 +27,11 @@ DROP TABLE IF EXISTS `auth_user`;
 CREATE TABLE `auth_user` (
   `id` binary(16) NOT NULL,
   `username` varchar(45) NOT NULL,
-  `password` binary(32) NOT NULL,
-  `image_src` varchar(100) NOT NULL DEFAULT '/Images/default-profile-icon-16.png',
+  `password` binary(64) NOT NULL,
+  `salt` varchar(10) NOT NULL,
+  `image_src` varchar(100) NOT NULL DEFAULT 'default-profile-icon-16.png',
+  `phone_number` varchar(15) NOT NULL,
+  `status` varchar(250) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -47,6 +50,7 @@ CREATE TABLE `messages` (
   `message_type` int NOT NULL,
   `content` text,
   `is_delivered` tinyint NOT NULL,
+  `date_sent` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `id_idx` (`user_from`),
   KEY `to_fk_idx` (`user_to`),
@@ -87,4 +91,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-05 15:30:32
+-- Dump completed on 2022-03-06 21:45:08
