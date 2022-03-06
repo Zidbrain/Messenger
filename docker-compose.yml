@@ -5,7 +5,6 @@ volumes:
   data1-1:
   data1-2:
 
-#Settings and configurations that are common for all containers
 x-minio-common: &minio-common
   image: quay.io/minio/minio:RELEASE.2022-03-05T06-32-39Z
   command: server --console-address ":9001" /data1
@@ -13,7 +12,7 @@ x-minio-common: &minio-common
     - "9000"
     - "9001"
   ports:
-    - "9000:9000"
+    - "127.0.0.1:9000:9000"
     - "9001:9001"
   # environment:
     # MINIO_ROOT_USER: minioadmin
@@ -28,10 +27,12 @@ services:
   minio1:
     <<: *minio-common
     hostname: minio1
+    container_name: Minio
     volumes:
       - data1-1:/data1
       - data1-2:/data2
   messenger:
+    container_name: Messenger
     image: ${DOCKER_REGISTRY-}messenger
     build:
       context: .
@@ -42,7 +43,6 @@ services:
       - "80:80"
       - "443:443"
     restart: always
-    #Specify Environment Variables for the Api Service
     environment: 
       - DBHOST=database
       - ASPNETCORE_ENVIRONMENT=Development
@@ -51,17 +51,14 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
       - ~/.aspnet/https:/https:ro
   database:
-    #Pull the latest mysql image
+    container_name: MySQLDB
     image: mysql:latest
-    #Map port 3306 on the mysql container to port 3306 in the host
     ports:
       - "3306:3306"
-    #Specify where the persisted Data should be stored
     volumes:
       - datafiles:/var/lib/mysql
       - "./messenger.sql:/docker-entrypoint-initdb.d"
     restart: always
-    #Specify Environment Variables for mysql
     environment: 
       - MYSQL_USER=admin
       - MYSQL_PASSWORD=123
