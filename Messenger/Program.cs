@@ -5,6 +5,19 @@ using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
+
+builder.WebHost.UseKestrel(options =>
+{
+    var configuration = builder.Configuration;
+
+    var mode = builder.Environment.IsDevelopment() ? "Private" : "Public";
+
+    var cert = configuration![$"Kestrel:Certificates:{mode}:Path"];
+    var certPassword = configuration![$"Kestrel:Certificates:{mode}:Password"];
+
+    options.ListenAnyIP(443, listenOptions => listenOptions.UseHttps(cert, certPassword));
+});
 
 builder.Services.AddControllers();
 
@@ -44,7 +57,6 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddLogging(options => options.AddConsole());
 
 var app = builder.Build();
-
 var options = new RewriteOptions();
 options.AddRedirect("^$", "swagger");
 app.UseRewriter(options);
@@ -60,5 +72,4 @@ app.UseAuthorization();
 app.UseAuthentication();
 
 app.MapControllers();
-
 app.Run();

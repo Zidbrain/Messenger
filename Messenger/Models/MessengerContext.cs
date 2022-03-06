@@ -7,13 +7,17 @@ namespace Messenger.Models
 {
     public partial class MessengerContext : DbContext
     {
-        public MessengerContext()
+        private IConfiguration _configuration;
+
+        public MessengerContext(IConfiguration configuration)
         {
+            _configuration = configuration;
         }
 
-        public MessengerContext(DbContextOptions<MessengerContext> options)
+        public MessengerContext(DbContextOptions<MessengerContext> options, IConfiguration configuration)
             : base(options)
         {
+            _configuration = configuration;
         }
 
         public virtual DbSet<AuthUser> AuthUsers { get; set; } = null!;
@@ -23,12 +27,7 @@ namespace Messenger.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var configuration = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json")
-                    .Build();
-
-                var connection = configuration.GetConnectionString("MessengerContext");
+                var connection = _configuration["Messenger:DatabaseConnectionString"];
 
                 optionsBuilder
                     .UseLazyLoadingProxies()

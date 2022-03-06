@@ -1,0 +1,15 @@
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.Docker.Sdk">
+  <PropertyGroup Label="Globals">
+    <ProjectVersion>2.1</ProjectVersion>
+    <DockerTargetOS>Linux</DockerTargetOS>
+    <ProjectGuid>1b2139b1-c13f-4bfa-990b-a749a6d1ba5a</ProjectGuid>
+    <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
+    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
+    <DockerServiceName>messenger</DockerServiceName>
+    <UserSecretsId>f108e145-5e64-486b-a17d-2fa5884c3cd2</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="docker-compose.yml" />
+    <None Include=".dockerignore" />
+  </ItemGroup>
+</Project>
