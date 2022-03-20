@@ -17,7 +17,8 @@ builder.WebHost.UseKestrel(options =>
     var certPassword = configuration![$"Kestrel:Certificates:{mode}:Password"];
 
     options.ListenAnyIP(443, listenOptions => listenOptions.UseHttps(cert, certPassword));
-});
+})
+    .UseUrls("http://*:80", "https://*:443");
 
 builder.Services.AddControllers();
 
