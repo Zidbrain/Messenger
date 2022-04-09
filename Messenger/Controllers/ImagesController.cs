@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Minio;
 
 namespace Messenger.Controllers;
 
@@ -38,9 +39,20 @@ public class ImagesController : ControllerBase
         AuthUser user;
         try
         {
-            var src = $"/Images/{jwt.Id}{extension}";
-            using var fileStream = System.IO.File.Create("." + src);
-            await file.CopyToAsync(fileStream, CancellationToken.None);
+            var src = $"{jwt.Id}{extension}";
+
+            var client = new MinioClient()
+                .WithCredentials("imagesadmin", "imagesadmin")
+                .WithEndpoint("host.docker.internal:9000")
+                .Build();
+
+            using var stream = file.OpenReadStream();
+
+            await client.PutObjectAsync(new PutObjectArgs()
+                .WithBucket("userimages")
+                .WithObject(src)
+                .WithStreamData(stream)
+                .WithObjectSize(stream.Length));
 
             user = await _context.AuthUsers.FirstAsync(x => x.Id.CompareTo(jwt.Id) == 0);
             user.ImageSrc = src;
@@ -74,19 +86,17 @@ public class ImagesController : ControllerBase
         if (user == null)
             return NotFound();
 
-        try
-        {
-            var fileStream = System.IO.File.OpenRead("." + user.ImageSrc);
-            return File(fileStream, Path.GetExtension(fileStream.Name) == ".png" ? "image/png" : "image/jpg");
-        }
-        catch (FileNotFoundException)
-        {
-            return BadRequest("No such file");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Error uploading file from {0}:{1}", username, ex);
-            return Conflict("Error downloading file");
-        }
+        var client = new MinioClient()
+            .WithEndpoint("host.docker.internal:9000")
+            .WithCredentials("imagesadmin", "imagesadmin")
+            .Build();
+
+        var stream = new MemoryStream();
+        var image = await client.GetObjectAsync(new GetObjectArgs()
+            .WithBucket("userimages")
+            .WithObject(user.ImageSrc)
+            .WithCallbackStream(s => s.CopyTo(stream)));
+        stream.Position = 0;
+        return File(stream, "image/png");
     }
 }

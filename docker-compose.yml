@@ -1,0 +1,67 @@
+version: '3.4'
+
+volumes:
+  datafiles:
+  data1-1:
+  data1-2:
+
+x-minio-common: &minio-common
+  image: quay.io/minio/minio:RELEASE.2022-03-05T06-32-39Z
+  command: server --console-address ":9001" /data1
+  expose:
+    - "9000"
+    - "9001"
+  ports:
+    - "127.0.0.1:9000:9000"
+    - "9001:9001"
+  # environment:
+    # MINIO_ROOT_USER: minioadmin
+    # MINIO_ROOT_PASSWORD: minioadmin
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+    interval: 30s
+    timeout: 20s
+    retries: 3
+
+services:
+  minio1:
+    <<: *minio-common
+    hostname: minio1
+    container_name: Minio
+    volumes:
+      - data1-1:/data1
+      - data1-2:/data2
+  messenger:
+    container_name: Messenger
+    image: ${DOCKER_REGISTRY-}messenger
+    build:
+      context: .
+      dockerfile: Messenger/Dockerfile
+    depends_on: 
+      - database
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    environment: 
+      - DBHOST=database
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
+      - ~/.aspnet/https:/https:ro
+  database:
+    container_name: MySQLDB
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    volumes:
+      - datafiles:/var/lib/mysql
+      - "./messenger.sql:/docker-entrypoint-initdb.d"
+    restart: always
+    environment: 
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=123
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_ALLOW_EMPTY_PASSWORD=True
+      - MYSQL_ROOT_HOST=%

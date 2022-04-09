@@ -8,13 +8,17 @@ namespace Messenger.Controllers;
 /// <summary>
 /// Информация о пользователе для авторизации
 /// </summary>
-/// <param name="Username">Имя пользователя</param>
-/// <param name="Password">Пароль пользователя</param>
 public record class UserAuthInfo
 {
+    /// <summary>
+    /// Имя пользователя
+    /// </summary>
     [Required]
     public string Username { get; set; }
 
+    /// <summary>
+    /// Пароль пользователя
+    /// </summary>
     [Required]
     public string Password { get; set; }
 

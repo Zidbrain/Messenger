@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-
-namespace Messenger.Models
+﻿namespace Messenger.Models
 {
     public partial class MessengerContext : DbContext
     {
-        public MessengerContext()
+        private readonly IConfiguration _configuration;
+
+        public MessengerContext(IConfiguration configuration)
         {
+            _configuration = configuration;
         }
 
-        public MessengerContext(DbContextOptions<MessengerContext> options)
+        public MessengerContext(DbContextOptions<MessengerContext> options, IConfiguration configuration)
             : base(options)
         {
+            _configuration = configuration;
         }
 
         public virtual DbSet<AuthUser> AuthUsers { get; set; } = null!;
@@ -23,16 +22,9 @@ namespace Messenger.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var configuration = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json")
-                    .Build();
-
-                var connection = configuration.GetConnectionString("MessengerContext");
-
                 optionsBuilder
-                    .UseLazyLoadingProxies()
-                    .UseMySql(connection, ServerVersion.Parse("8.0.27-mysql"));
+                    .UseMySql(_configuration["Messenger:DatabaseConnectionString"], Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.27-mysql"))
+                    .UseLazyLoadingProxies();
             }
         }
 
@@ -46,19 +38,32 @@ namespace Messenger.Models
                 entity.ToTable("auth_user");
 
                 entity.Property(e => e.Id)
-                    .HasConversion<byte[]>()
+                    .HasMaxLength(16)
                     .HasColumnName("id")
-                    .IsFixedLength();
+                    .IsFixedLength()
+                    .HasConversion<byte[]>();
 
                 entity.Property(e => e.ImageSrc)
                     .HasMaxLength(100)
                     .HasColumnName("image_src")
-                    .HasDefaultValueSql("'/Images/default-profile-icon-16.png'");
+                    .HasDefaultValueSql("'default-profile-icon-16.png'");
 
                 entity.Property(e => e.Password)
-                    .HasMaxLength(32)
+                    .HasMaxLength(64)
                     .HasColumnName("password")
                     .IsFixedLength();
+
+                entity.Property(e => e.PhoneNumber)
+                    .HasMaxLength(15)
+                    .HasColumnName("phone_number");
+
+                entity.Property(e => e.Salt)
+                    .HasMaxLength(10)
+                    .HasColumnName("salt");
+
+                entity.Property(e => e.Status)
+                    .HasMaxLength(250)
+                    .HasColumnName("status");
 
                 entity.Property(e => e.Username)
                     .HasMaxLength(45)
@@ -74,31 +79,36 @@ namespace Messenger.Models
                 entity.HasIndex(e => e.UserTo, "to_fk_idx");
 
                 entity.Property(e => e.Id)
-                    .HasConversion<byte[]>()
+                    .HasMaxLength(16)
                     .HasColumnName("id")
-                    .IsFixedLength();
+                    .IsFixedLength()
+                    .HasConversion<byte[]>();
 
                 entity.Property(e => e.Content)
                     .HasColumnType("text")
                     .HasColumnName("content");
 
+                entity.Property(e => e.DateSent)
+                    .HasColumnType("datetime")
+                    .HasColumnName("date_sent");
+
+                entity.Property(e => e.IsDelivered).HasColumnName("is_delivered");
+
                 entity.Property(e => e.MessageType)
-                    .HasConversion<int>()
-                    .HasColumnName("message_type");
+                    .HasColumnName("message_type")
+                    .HasConversion<int>();
 
                 entity.Property(e => e.UserFrom)
-                    .HasConversion<byte[]>()
+                    .HasMaxLength(16)
                     .HasColumnName("user_from")
-                    .IsFixedLength();
+                    .IsFixedLength()
+                    .HasConversion<byte[]>();
 
                 entity.Property(e => e.UserTo)
-                    .HasConversion<byte[]>()
+                    .HasMaxLength(16)
                     .HasColumnName("user_to")
-                    .IsFixedLength();
-
-                entity.Property(e => e.IsDelivered)
-                    .HasColumnType("tinyint")
-                    .HasColumnName("is_delivered");
+                    .IsFixedLength()
+                    .HasConversion<byte[]>();
 
                 entity.HasOne(d => d.UserFromNavigation)
                     .WithMany(p => p.MessageUserFromNavigations)

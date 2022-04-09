@@ -48,6 +48,8 @@ public class MessengerClient
         var message = await JsonSerializer.DeserializeAsync<Message>(stream, new JsonSerializerOptions(JsonSerializerDefaults.Web), cancellationToken);
         message!.Id = Guid.NewGuid();
         message!.UserFrom = _userInfo.Id;
+        if (message!.DateSent == default)
+            message!.DateSent = DateTime.UtcNow;
 
         return message;
     }
