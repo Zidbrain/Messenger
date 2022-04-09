@@ -1,0 +1,582 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API для мессенджера",
+    "version": "v1"
+  },
+  "paths": {
+    "/auth": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Получить токен аунтетификации пользователя.",
+        "description": "Пример запроса:\r\n    POST /Auth\r\n    {\r\n        \"username\": \"user\",\r\n        \"password\": \"password\"\r\n    }",
+        "requestBody": {
+          "description": "Данные пользователя",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAuthInfo"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAuthInfo"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAuthInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Неправильное имя пользователя или пароль"
+          }
+        }
+      }
+    },
+    "/file": {
+      "get": {
+        "tags": [
+          "File"
+        ],
+        "summary": "Получить файл с заданным индетификатором.",
+        "parameters": [
+          {
+            "name": "fileHandle",
+            "in": "query",
+            "description": "Индетификатор файла",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Файл"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "File"
+        ],
+        "summary": "Загрузить файл для сообщения. Файл должен быть загружен с помощью form-data.",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ContentType": {
+                    "type": "string"
+                  },
+                  "ContentDisposition": {
+                    "type": "string"
+                  },
+                  "Headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "Length": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "Name": {
+                    "type": "string"
+                  },
+                  "FileName": {
+                    "type": "string"
+                  }
+                }
+              },
+              "encoding": {
+                "ContentType": {
+                  "style": "form"
+                },
+                "ContentDisposition": {
+                  "style": "form"
+                },
+                "Headers": {
+                  "style": "form"
+                },
+                "Length": {
+                  "style": "form"
+                },
+                "Name": {
+                  "style": "form"
+                },
+                "FileName": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Уникальный id файла который используется для последуюзего обращения к нему"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/images": {
+      "post": {
+        "tags": [
+          "Images"
+        ],
+        "summary": "Загрузить аватарку пользователя. Пользователь определяется JWT токеном при аунтетификации.\r\nФайл изображения должен быть формата .png или .jpg и загружен с помощью form-data",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ContentType": {
+                    "type": "string"
+                  },
+                  "ContentDisposition": {
+                    "type": "string"
+                  },
+                  "Headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "Length": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "Name": {
+                    "type": "string"
+                  },
+                  "FileName": {
+                    "type": "string"
+                  }
+                }
+              },
+              "encoding": {
+                "ContentType": {
+                  "style": "form"
+                },
+                "ContentDisposition": {
+                  "style": "form"
+                },
+                "Headers": {
+                  "style": "form"
+                },
+                "Length": {
+                  "style": "form"
+                },
+                "Name": {
+                  "style": "form"
+                },
+                "FileName": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Загруженный файл не является изображением"
+          },
+          "409": {
+            "description": "Ошибка при загрузке изображения"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/images/{username}": {
+      "get": {
+        "tags": [
+          "Images"
+        ],
+        "summary": "Получить аватарку пользователя. Требует аунтетификации.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "description": "Имя пользователя для которого требуется получить аватрку.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              },
+              "image/jpg": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Указанный пользователь не нейден"
+          },
+          "400": {
+            "description": "Не найден аватар пользователя"
+          },
+          "409": {
+            "description": "Ошибка загрузки файла"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/messenger/history": {
+      "get": {
+        "tags": [
+          "Message"
+        ],
+        "summary": "Получение истории сообщений для конкретного пользователя. Пользователь определяется по JWT токену.",
+        "responses": {
+          "200": {
+            "description": "История сообщений",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Message"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Ошибка авторизации"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/messenger/connect": {
+      "get": {
+        "tags": [
+          "Message"
+        ],
+        "summary": "Endpoint для подключения к мессенджеру по websocket. Пока не требует авторизации, сообщения отправляются от имени указанного пользователя.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "description": "Имя пользователя в качестве которого требуется авторизироваться",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "Попытка подключения не по протоколу websocket"
+          },
+          "404": {
+            "description": "Указанный пользователь не найден"
+          }
+        }
+      }
+    },
+    "/user": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Получения списка всех пользователей. Требует аунтетификации.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuthUser"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Ошибка аунтетификации."
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/user/{username}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Получение информации о конкретном пользователе. Требует аунтетификации.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "description": "Имя пользователя",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthUser"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Пользователь не найден"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/user/register": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Регистрация пользователя",
+        "requestBody": {
+          "description": "Информация о пользователе, которого необходимо зарегистрировать",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAuthInfo"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAuthInfo"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAuthInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthUser"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Пользователь с данным именем уже существует"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuthUser": {
+        "required": [
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Индетификатор пользователя",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string",
+            "description": "Логин пользователя"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Информация о пользователе"
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "userFrom": {
+            "type": "string",
+            "description": "Пользователь, отправивший сообщение.",
+            "format": "uuid"
+          },
+          "userTo": {
+            "type": "string",
+            "description": "Пользователь, кому назначено сообщение.",
+            "format": "uuid"
+          },
+          "messageType": {
+            "$ref": "#/components/schemas/MessageType"
+          },
+          "content": {
+            "type": "string",
+            "description": "Содержание сообщения.",
+            "nullable": true
+          },
+          "dateSent": {
+            "type": "string",
+            "description": "Дата отправки сообщения.",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Сообщение"
+      },
+      "MessageType": {
+        "enum": [
+          "Text",
+          "File"
+        ],
+        "type": "string",
+        "description": "Тип контента сообщения"
+      },
+      "UserAuthInfo": {
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Имя пользователя"
+          },
+          "password": {
+            "type": "string",
+            "description": "Пароль пользователя"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Информация о пользователе для авторизации"
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "JWT-токен для авторизации",
+        "scheme": "Bearer"
+      }
+    }
+  }
+}

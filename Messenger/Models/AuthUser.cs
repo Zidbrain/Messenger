@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using System.Security.Cryptography;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Messenger.Models
 {
@@ -13,8 +13,8 @@ namespace Messenger.Models
     {
         public AuthUser()
         {
-            MessageUserFromNavigations = new HashSet<Message>();
-            MessageUserToNavigations = new HashSet<Message>();
+            //MessageUserFromNavigations = new HashSet<Message>();
+            //MessageUserToNavigations = new HashSet<Message>();
         }
 
         public AuthUser(string username, string password) : this()
