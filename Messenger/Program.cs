@@ -27,6 +27,7 @@ builder.Services
     .AddOptions()
     .AddDbContext<MessengerContext>(options => { })
     .AddMessenger()
+    .AddMinioFileService()
     .AddRouting(options => options.LowercaseUrls = true)
 
     .AddSwaggerGen(options =>

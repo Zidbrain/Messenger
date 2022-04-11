@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Messenger.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Minio;
 
@@ -15,8 +16,17 @@ public class ImagesController : ControllerBase
     private readonly ILogger<ImagesController> _logger;
     private readonly MessengerContext _context;
 
-    public ImagesController(ILogger<ImagesController> logger, MessengerContext dbContext) =>
+    private readonly IFileService _fileService;
+
+    public ImagesController(ILogger<ImagesController> logger, MessengerContext dbContext, MinioFileServiceFactory minioFactory)
+    {
         (_logger, _context) = (logger, dbContext);
+
+        _fileService = minioFactory.CreateInstance(new MinioClient()
+                .WithCredentials("imagesadmin", "imagesadmin")
+                .WithEndpoint("host.docker.internal:9000")
+                .Build());
+    }
 
     /// <summary>
     /// Загрузить аватарку пользователя. Пользователь определяется JWT токеном при аунтетификации.
@@ -41,18 +51,8 @@ public class ImagesController : ControllerBase
         {
             var src = $"{jwt.Id}{extension}";
 
-            var client = new MinioClient()
-                .WithCredentials("imagesadmin", "imagesadmin")
-                .WithEndpoint("host.docker.internal:9000")
-                .Build();
-
             using var stream = file.OpenReadStream();
-
-            await client.PutObjectAsync(new PutObjectArgs()
-                .WithBucket("userimages")
-                .WithObject(src)
-                .WithStreamData(stream)
-                .WithObjectSize(stream.Length));
+            await _fileService.SaveFile("userimages", src, stream);
 
             user = await _context.AuthUsers.FirstAsync(x => x.Id.CompareTo(jwt.Id) == 0);
             user.ImageSrc = src;
@@ -86,17 +86,8 @@ public class ImagesController : ControllerBase
         if (user == null)
             return NotFound();
 
-        var client = new MinioClient()
-            .WithEndpoint("host.docker.internal:9000")
-            .WithCredentials("imagesadmin", "imagesadmin")
-            .Build();
+        var stream = await _fileService.LoadFile("userimages", user.ImageSrc);
 
-        var stream = new MemoryStream();
-        var image = await client.GetObjectAsync(new GetObjectArgs()
-            .WithBucket("userimages")
-            .WithObject(user.ImageSrc)
-            .WithCallbackStream(s => s.CopyTo(stream)));
-        stream.Position = 0;
         return File(stream, "image/png");
     }
 }
