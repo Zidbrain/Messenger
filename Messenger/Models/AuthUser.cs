@@ -13,8 +13,8 @@ namespace Messenger.Models
     {
         public AuthUser()
         {
-            //MessageUserFromNavigations = new HashSet<Message>();
-            //MessageUserToNavigations = new HashSet<Message>();
+            MessageUserFromNavigations = new HashSet<Message>();
+            MessageUserToNavigations = new HashSet<Message>();
         }
 
         public AuthUser(string username, string password) : this()
@@ -40,7 +40,7 @@ namespace Messenger.Models
         /// <summary>
         /// Логин пользователя
         /// </summary>
-        [Required]
+        [JsonIgnore]
         public string Username { get; set; } = null!;
 
         [JsonIgnore]
@@ -48,6 +48,9 @@ namespace Messenger.Models
 
         [JsonIgnore]
         public string Salt { get; set; } = null!;
+
+        [Required]
+        public string Nickname { get; set; } = null!;
 
         [JsonIgnore]
         public string ImageSrc { get; set; } = null!;

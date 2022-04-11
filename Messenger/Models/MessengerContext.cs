@@ -18,6 +18,8 @@
         public virtual DbSet<AuthUser> AuthUsers { get; set; } = null!;
         public virtual DbSet<Message> Messages { get; set; } = null!;
 
+        public virtual DbSet<FileName> FileNames { get; set; } = null!;
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -56,6 +58,10 @@
                 entity.Property(e => e.PhoneNumber)
                     .HasMaxLength(15)
                     .HasColumnName("phone_number");
+
+                entity.Property(e => e.Nickname)
+                    .HasMaxLength(60)
+                    .HasColumnName("nickname");
 
                 entity.Property(e => e.Salt)
                     .HasMaxLength(10)
@@ -121,6 +127,21 @@
                     .HasForeignKey(d => d.UserTo)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("to_fk");
+            });
+
+            modelBuilder.Entity<FileName>(entity =>
+            {
+                entity.ToTable("file_names");
+
+                entity.Property(e => e.ID)
+                    .HasMaxLength(16)
+                    .HasColumnName("id")
+                    .IsFixedLength()
+                    .HasConversion<byte[]>();
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(100)
+                    .HasColumnName("name");
             });
 
             OnModelCreatingPartial(modelBuilder);

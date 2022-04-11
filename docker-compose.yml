@@ -6,7 +6,7 @@ volumes:
   data1-2:
 
 x-minio-common: &minio-common
-  image: quay.io/minio/minio:RELEASE.2022-03-05T06-32-39Z
+  image: minio/minio
   command: server --console-address ":9001" /data1
   expose:
     - "9000"

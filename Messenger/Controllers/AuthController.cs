@@ -55,6 +55,8 @@ public class AuthController : ControllerBase
        _context = context;
     }
 
+    private record class AccessTokenJSON(string AccesToken);
+
     /// <summary>
     /// Получить токен аунтетификации пользователя.
     /// </summary>
@@ -70,6 +72,7 @@ public class AuthController : ControllerBase
     ///     }
     /// </remarks>
     [HttpPost]
+    [ProducesResponseType(typeof(AccessTokenJSON), 200)]
     public async Task<IActionResult> Get([FromBody] UserAuthInfo user)
     {
         var identity = await GetIdentity(user.Username, user.Password);
@@ -87,10 +90,7 @@ public class AuthController : ControllerBase
             );
         var encoded = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-        return Ok(new
-        {
-            access_token = encoded
-        });
+        return Ok(new AccessTokenJSON(encoded));
     }
 
     private async Task<ClaimsIdentity?> GetIdentity(string username, string password)

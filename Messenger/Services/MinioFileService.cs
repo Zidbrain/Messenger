@@ -4,6 +4,10 @@ namespace Messenger.Services;
 
 public class MinioFileService : IFileService
 {
+    public const string ImagesCredentials = "imagesadmin";
+    public const string FilesCredentials = "fileuser";
+    public const string AccessURL = "host.docker.internal:9000";
+
     public MinioClient Client { get; set; }
 
     public MinioFileService(MinioClient client) =>

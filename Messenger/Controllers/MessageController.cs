@@ -38,7 +38,7 @@ public class MessageController : ControllerBase
     [ProducesResponseType(typeof(List<Message>), 200)]
     public async Task<IActionResult> GetHistory()
     {
-        var jwt = JwtTokenStatics.GetUserInfo((await HttpContext.GetTokenAsync("access_token"))!);
+        var jwt = await JwtTokenStatics.GetUserInfoAsync(HttpContext);
 
         return Ok(await _context.Messages.Where(m => m.UserTo == jwt.Id || m.UserFrom == jwt.Id).ToListAsync());
     }
