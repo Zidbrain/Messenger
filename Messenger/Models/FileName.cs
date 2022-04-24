@@ -1,4 +1,6 @@
-﻿namespace Messenger.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace Messenger.Models;
 
 public partial class FileName
 {
@@ -16,4 +18,7 @@ public partial class FileName
 
     public Guid ID { get; set; }
     public string Name { get; set; }
+
+    [JsonIgnore]
+    public virtual IEnumerable<Message> MessageFileIDNavigations { get; set; } = null!;
 }

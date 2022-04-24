@@ -84,6 +84,8 @@
 
                 entity.HasIndex(e => e.UserTo, "to_fk_idx");
 
+                entity.HasIndex(e => e.FileID, "file_fk_idx");
+
                 entity.Property(e => e.Id)
                     .HasMaxLength(16)
                     .HasColumnName("id")
@@ -103,6 +105,12 @@
                 entity.Property(e => e.MessageType)
                     .HasColumnName("message_type")
                     .HasConversion<int>();
+
+                entity.Property(e => e.FileID)
+                    .HasColumnName("file_id")
+                    .HasMaxLength(16)
+                    .IsFixedLength()
+                    .HasConversion<byte[]>();
 
                 entity.Property(e => e.UserFrom)
                     .HasMaxLength(16)
@@ -127,6 +135,12 @@
                     .HasForeignKey(d => d.UserTo)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("to_fk");
+
+                entity.HasOne(d => d.FileNavigation)
+                    .WithMany(p => p.MessageFileIDNavigations)
+                    .HasForeignKey(d => d.FileID)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("file_fk");
             });
 
             modelBuilder.Entity<FileName>(entity =>
