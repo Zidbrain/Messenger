@@ -52,7 +52,7 @@ public class MessageController : ControllerBase
     /// <response code="401">Попытка подключения не по протоколу websocket</response>
     /// <response code="404">Указанный пользователь не найден</response>
     [HttpGet("connect")]
-    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task Connect(string username)
     {
         if (!HttpContext.WebSockets.IsWebSocketRequest)
@@ -62,13 +62,15 @@ public class MessageController : ControllerBase
             return;
         }
 
-        var user = await _context.AuthUsers.FirstOrDefaultAsync(x => x.Username == username);
-        if (user == null)
-        {
-            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            await HttpContext.Response.BodyWriter.WriteAsync(Encoding.UTF8.GetBytes($"User {username} not found"));
-            return;
-        }
+        var jwt = await JwtTokenStatics.GetUserInfoAsync(HttpContext);
+
+        var user = await _context.AuthUsers.FirstAsync(x => x.Id == jwt.Id);
+        //if (user == null)
+        //{
+        //    HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+        //    await HttpContext.Response.BodyWriter.WriteAsync(Encoding.UTF8.GetBytes($"User {username} not found"));
+        //    return;
+        //}
 
         using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
 
