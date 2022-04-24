@@ -45,15 +45,14 @@ public class MessageController : ControllerBase
 
 
     /// <summary>
-    /// Endpoint для подключения к мессенджеру по websocket. Пока не требует авторизации, сообщения отправляются от имени указанного пользователя.
+    /// Endpoint для подключения к мессенджеру по websocket. Требует авторизации.
     /// </summary>
-    /// <param name="username">Имя пользователя в качестве которого требуется авторизироваться</param>
     /// <returns></returns>
     /// <response code="401">Попытка подключения не по протоколу websocket</response>
     /// <response code="404">Указанный пользователь не найден</response>
     [HttpGet("connect")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public async Task Connect(string username)
+    public async Task Connect()
     {
         if (!HttpContext.WebSockets.IsWebSocketRequest)
         {
