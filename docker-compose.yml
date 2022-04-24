@@ -53,14 +53,16 @@ services:
     ports:
       - "1443"
       - "180"
-    restart: always
     environment: 
       - DBHOST=database
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:1443;http://+:180
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=741b1cdd-7ff1-4fe8-b924-8a6ee1f005b1
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/etc/https/certificate.pfx
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
       - ~/.aspnet/https:/https:ro
+      - ./nginx/privateCertificate.pfx:/etc/https/certificate.pfx:ro
   database:
     container_name: MySQLDB
     image: mysql:latest
