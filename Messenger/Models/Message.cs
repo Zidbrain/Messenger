@@ -30,9 +30,16 @@ namespace Messenger.Models
         public MessageType MessageType { get; set; }
 
         /// <summary>
-        /// Содержание сообщения.
+        /// Текстовое содержание сообщения.
         /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? Content { get; set; }
+
+        /// <summary>
+        /// Файл, содержащийся в сообщении (при наличии)
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public Guid? FileID { get; set; }
 
         [JsonIgnore]
         public bool IsDelivered { get; set; }
@@ -46,5 +53,7 @@ namespace Messenger.Models
         public virtual AuthUser UserFromNavigation { get; set; } = null!;
         [JsonIgnore]
         public virtual AuthUser UserToNavigation { get; set; } = null!;
+        [JsonIgnore]
+        public virtual FileName FileNavigation { get; set; } = null!;
     }
 }

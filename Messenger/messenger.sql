@@ -4,7 +4,7 @@ USE `messenger`;
 --
 -- Host: localhost    Database: messenger
 -- ------------------------------------------------------
--- Server version	8.0.27
+-- Server version	8.0.28
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -30,8 +30,23 @@ CREATE TABLE `auth_user` (
   `password` binary(64) NOT NULL,
   `salt` varchar(10) NOT NULL,
   `image_src` varchar(100) NOT NULL DEFAULT 'default-profile-icon-16.png',
-  `phone_number` varchar(15) NOT NULL,
+  `nickname` varchar(60) NOT NULL,
+  `phone_number` varchar(15) DEFAULT NULL,
   `status` varchar(250) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `file_names`
+--
+
+DROP TABLE IF EXISTS `file_names`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `file_names` (
+  `id` binary(16) NOT NULL,
+  `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -49,11 +64,14 @@ CREATE TABLE `messages` (
   `user_to` binary(16) NOT NULL,
   `message_type` int NOT NULL,
   `content` text,
+  `file_id` binary(16) DEFAULT NULL,
   `is_delivered` tinyint NOT NULL,
   `date_sent` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `id_idx` (`user_from`),
   KEY `to_fk_idx` (`user_to`),
+  KEY `file_fk_idx` (`file_id`),
+  CONSTRAINT `file_fk` FOREIGN KEY (`file_id`) REFERENCES `file_names` (`id`),
   CONSTRAINT `from_fk` FOREIGN KEY (`user_from`) REFERENCES `auth_user` (`id`),
   CONSTRAINT `to_fk` FOREIGN KEY (`user_to`) REFERENCES `auth_user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -91,4 +109,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-06 21:45:08
+-- Dump completed on 2022-04-24 16:51:23

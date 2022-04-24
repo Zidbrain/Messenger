@@ -2,31 +2,33 @@ using Messenger;
 using Microsoft.AspNetCore.Rewrite;
 using System.Reflection;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
 
-builder.WebHost.UseKestrel(options =>
-{
-    var configuration = builder.Configuration;
+//builder.WebHost.UseKestrel(options =>
+//{
+//    var configuration = builder.Configuration;
 
-    var mode = builder.Environment.IsDevelopment() ? "Private" : "Public";
+//    var mode = builder.Environment.IsDevelopment() ? "Private" : "Public";
 
-    var cert = configuration![$"Kestrel:Certificates:{mode}:Path"];
-    var certPassword = configuration![$"Kestrel:Certificates:{mode}:Password"];
+//    var cert = configuration![$"Kestrel:Certificates:{mode}:Path"];
+//    var certPassword = configuration![$"Kestrel:Certificates:{mode}:Password"];
 
-    options.ListenAnyIP(443, listenOptions => listenOptions.UseHttps(cert, certPassword));
-});
+//    options.ListenAnyIP(443, listenOptions => listenOptions.UseHttps(cert, certPassword));
+//    options.ListenAnyIP(80);
+//});
 
 builder.Services.AddControllers();
-
 
 builder.Services
     .AddEndpointsApiExplorer()
     .AddOptions()
     .AddDbContext<MessengerContext>(options => { })
     .AddMessenger()
+    .AddMinioFileService()
     .AddRouting(options => options.LowercaseUrls = true)
 
     .AddSwaggerGen(options =>
@@ -35,7 +37,6 @@ builder.Services
     options.AddSecurityDefinition("Bearer", AddAuthHeaderOperationFilter.BearerScheme);
 
     options.OperationFilter<AddAuthHeaderOperationFilter>();
-    
     
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
 })
@@ -64,6 +65,12 @@ builder.Services
 builder.Services.AddLogging(options => options.AddConsole());
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 var options = new RewriteOptions();
 options.AddRedirect("^$", "swagger");
 app.UseRewriter(options);

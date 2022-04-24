@@ -34,7 +34,14 @@
         },
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenJSON"
+                }
+              }
+            }
           },
           "400": {
             "description": "Неправильное имя пользователя или пароль"
@@ -54,7 +61,8 @@
             "in": "query",
             "description": "Индетификатор файла",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -65,8 +73,8 @@
           "401": {
             "description": "Unauthorized"
           },
-          "403": {
-            "description": "Forbidden"
+          "404": {
+            "description": "Файл не найден"
           }
         },
         "security": [
@@ -86,50 +94,14 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "ContentType": {
-                    "type": "string"
-                  },
-                  "ContentDisposition": {
-                    "type": "string"
-                  },
-                  "Headers": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "Length": {
-                    "type": "integer",
-                    "format": "int64"
-                  },
-                  "Name": {
-                    "type": "string"
-                  },
-                  "FileName": {
-                    "type": "string"
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
                   }
                 }
               },
               "encoding": {
-                "ContentType": {
-                  "style": "form"
-                },
-                "ContentDisposition": {
-                  "style": "form"
-                },
-                "Headers": {
-                  "style": "form"
-                },
-                "Length": {
-                  "style": "form"
-                },
-                "Name": {
-                  "style": "form"
-                },
-                "FileName": {
+                "file": {
                   "style": "form"
                 }
               }
@@ -138,13 +110,27 @@
         },
         "responses": {
           "200": {
-            "description": "Уникальный id файла который используется для последуюзего обращения к нему"
+            "description": "Уникальный id файла который используется для последуюзего обращения к нему",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileHandleJSON"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileHandleJSON"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileHandleJSON"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
           }
         },
         "security": [
@@ -166,50 +152,14 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "ContentType": {
-                    "type": "string"
-                  },
-                  "ContentDisposition": {
-                    "type": "string"
-                  },
-                  "Headers": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "Length": {
-                    "type": "integer",
-                    "format": "int64"
-                  },
-                  "Name": {
-                    "type": "string"
-                  },
-                  "FileName": {
-                    "type": "string"
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
                   }
                 }
               },
               "encoding": {
-                "ContentType": {
-                  "style": "form"
-                },
-                "ContentDisposition": {
-                  "style": "form"
-                },
-                "Headers": {
-                  "style": "form"
-                },
-                "Length": {
-                  "style": "form"
-                },
-                "Name": {
-                  "style": "form"
-                },
-                "FileName": {
+                "file": {
                   "style": "form"
                 }
               }
@@ -217,14 +167,11 @@
           }
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Success"
           },
           "401": {
             "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
           },
           "400": {
             "description": "Загруженный файл не является изображением"
@@ -240,7 +187,7 @@
         ]
       }
     },
-    "/images/{username}": {
+    "/images/{userID}": {
       "get": {
         "tags": [
           "Images"
@@ -248,38 +195,22 @@
         "summary": "Получить аватарку пользователя. Требует аунтетификации.",
         "parameters": [
           {
-            "name": "username",
+            "name": "userID",
             "in": "path",
-            "description": "Имя пользователя для которого требуется получить аватрку.",
+            "description": "Идентификатор пользователя для которого требуется получить аватрку.",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Success",
-            "content": {
-              "image/png": {
-                "schema": {
-                  "type": "string",
-                  "format": "byte"
-                }
-              },
-              "image/jpg": {
-                "schema": {
-                  "type": "string",
-                  "format": "byte"
-                }
-              }
-            }
+            "description": "Success"
           },
           "401": {
             "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
           },
           "404": {
             "description": "Указанный пользователь не нейден"
@@ -320,9 +251,6 @@
           },
           "401": {
             "description": "Ошибка авторизации"
-          },
-          "403": {
-            "description": "Forbidden"
           }
         },
         "security": [
@@ -361,7 +289,7 @@
         }
       }
     },
-    "/user": {
+    "/user/all": {
       "get": {
         "tags": [
           "User"
@@ -375,7 +303,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/AuthUser"
+                    "$ref": "#/components/schemas/ClientUserInfo"
                   }
                 }
               }
@@ -383,9 +311,6 @@
           },
           "401": {
             "description": "Ошибка аунтетификации."
-          },
-          "403": {
-            "description": "Forbidden"
           }
         },
         "security": [
@@ -395,7 +320,7 @@
         ]
       }
     },
-    "/user/{username}": {
+    "/user": {
       "get": {
         "tags": [
           "User"
@@ -403,12 +328,12 @@
         "summary": "Получение информации о конкретном пользователе. Требует аунтетификации.",
         "parameters": [
           {
-            "name": "username",
-            "in": "path",
-            "description": "Имя пользователя",
-            "required": true,
+            "name": "id",
+            "in": "query",
+            "description": "Идентификатор пользователя",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -418,7 +343,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthUser"
+                  "$ref": "#/components/schemas/ClientUserInfo"
                 }
               }
             }
@@ -426,11 +351,57 @@
           "401": {
             "description": "Unauthorized"
           },
-          "403": {
-            "description": "Forbidden"
-          },
           "404": {
             "description": "Пользователь не найден"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Изменить информацию пользователя. Пользователь определяется по jwt-токену.",
+        "requestBody": {
+          "description": "Информация для изменения",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPatchInfo"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPatchInfo"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPatchInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientUserInfo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Пользователь с данным ID не найден"
           }
         },
         "security": [
@@ -451,17 +422,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserAuthInfo"
+                "$ref": "#/components/schemas/UserRegisterInfo"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserAuthInfo"
+                "$ref": "#/components/schemas/UserRegisterInfo"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/UserAuthInfo"
+                "$ref": "#/components/schemas/UserRegisterInfo"
               }
             }
           }
@@ -486,9 +457,19 @@
   },
   "components": {
     "schemas": {
+      "AccessTokenJSON": {
+        "type": "object",
+        "properties": {
+          "accesToken": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "AuthUser": {
         "required": [
-          "username"
+          "nickname"
         ],
         "type": "object",
         "properties": {
@@ -497,9 +478,8 @@
             "description": "Индетификатор пользователя",
             "format": "uuid"
           },
-          "username": {
-            "type": "string",
-            "description": "Логин пользователя"
+          "nickname": {
+            "type": "string"
           },
           "phoneNumber": {
             "type": "string",
@@ -512,6 +492,38 @@
         },
         "additionalProperties": false,
         "description": "Информация о пользователе"
+      },
+      "ClientUserInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nickname": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FileHandleJSON": {
+        "type": "object",
+        "properties": {
+          "fileHandle": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
       },
       "Message": {
         "type": "object",
@@ -569,6 +581,42 @@
         },
         "additionalProperties": false,
         "description": "Информация о пользователе для авторизации"
+      },
+      "UserPatchInfo": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserRegisterInfo": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "nickname": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       }
     },
     "securitySchemes": {

@@ -11,8 +11,10 @@ public static class JwtTokenStatics
     public static SymmetricSecurityKey SecurityKey { get; } = 
         new SymmetricSecurityKey(RandomNumberGenerator.GetBytes(64));
 
-    public static TrackUser GetUserInfo(string jwt)
+    public static async Task<TrackUser> GetUserInfoAsync(HttpContext context)
     {
+        var jwt = await context.GetTokenAsync("access_token");
+
         var token = new JwtSecurityToken(jwt);
         return new TrackUser(
             Guid.Parse(token.Claims.First(x => x.Type == ClaimsIdentity.DefaultNameClaimType).Value),

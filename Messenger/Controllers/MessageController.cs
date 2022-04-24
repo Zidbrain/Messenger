@@ -38,22 +38,21 @@ public class MessageController : ControllerBase
     [ProducesResponseType(typeof(List<Message>), 200)]
     public async Task<IActionResult> GetHistory()
     {
-        var jwt = JwtTokenStatics.GetUserInfo((await HttpContext.GetTokenAsync("access_token"))!);
+        var jwt = await JwtTokenStatics.GetUserInfoAsync(HttpContext);
 
         return Ok(await _context.Messages.Where(m => m.UserTo == jwt.Id || m.UserFrom == jwt.Id).ToListAsync());
     }
 
 
     /// <summary>
-    /// Endpoint для подключения к мессенджеру по websocket. Пока не требует авторизации, сообщения отправляются от имени указанного пользователя.
+    /// Endpoint для подключения к мессенджеру по websocket. Требует авторизации.
     /// </summary>
-    /// <param name="username">Имя пользователя в качестве которого требуется авторизироваться</param>
     /// <returns></returns>
     /// <response code="401">Попытка подключения не по протоколу websocket</response>
     /// <response code="404">Указанный пользователь не найден</response>
     [HttpGet("connect")]
-    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public async Task Connect(string username)
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public async Task Connect()
     {
         if (!HttpContext.WebSockets.IsWebSocketRequest)
         {
@@ -62,13 +61,15 @@ public class MessageController : ControllerBase
             return;
         }
 
-        var user = await _context.AuthUsers.FirstOrDefaultAsync(x => x.Username == username);
-        if (user == null)
-        {
-            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            await HttpContext.Response.BodyWriter.WriteAsync(Encoding.UTF8.GetBytes($"User {username} not found"));
-            return;
-        }
+        var jwt = await JwtTokenStatics.GetUserInfoAsync(HttpContext);
+
+        var user = await _context.AuthUsers.FirstAsync(x => x.Id == jwt.Id);
+        //if (user == null)
+        //{
+        //    HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+        //    await HttpContext.Response.BodyWriter.WriteAsync(Encoding.UTF8.GetBytes($"User {username} not found"));
+        //    return;
+        //}
 
         using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
 

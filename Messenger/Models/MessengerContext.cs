@@ -18,6 +18,8 @@
         public virtual DbSet<AuthUser> AuthUsers { get; set; } = null!;
         public virtual DbSet<Message> Messages { get; set; } = null!;
 
+        public virtual DbSet<FileName> FileNames { get; set; } = null!;
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -57,6 +59,10 @@
                     .HasMaxLength(15)
                     .HasColumnName("phone_number");
 
+                entity.Property(e => e.Nickname)
+                    .HasMaxLength(60)
+                    .HasColumnName("nickname");
+
                 entity.Property(e => e.Salt)
                     .HasMaxLength(10)
                     .HasColumnName("salt");
@@ -78,6 +84,8 @@
 
                 entity.HasIndex(e => e.UserTo, "to_fk_idx");
 
+                entity.HasIndex(e => e.FileID, "file_fk_idx");
+
                 entity.Property(e => e.Id)
                     .HasMaxLength(16)
                     .HasColumnName("id")
@@ -97,6 +105,12 @@
                 entity.Property(e => e.MessageType)
                     .HasColumnName("message_type")
                     .HasConversion<int>();
+
+                entity.Property(e => e.FileID)
+                    .HasColumnName("file_id")
+                    .HasMaxLength(16)
+                    .IsFixedLength()
+                    .HasConversion<byte[]>();
 
                 entity.Property(e => e.UserFrom)
                     .HasMaxLength(16)
@@ -121,6 +135,27 @@
                     .HasForeignKey(d => d.UserTo)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("to_fk");
+
+                entity.HasOne(d => d.FileNavigation)
+                    .WithMany(p => p.MessageFileIDNavigations)
+                    .HasForeignKey(d => d.FileID)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("file_fk");
+            });
+
+            modelBuilder.Entity<FileName>(entity =>
+            {
+                entity.ToTable("file_names");
+
+                entity.Property(e => e.ID)
+                    .HasMaxLength(16)
+                    .HasColumnName("id")
+                    .IsFixedLength()
+                    .HasConversion<byte[]>();
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(100)
+                    .HasColumnName("name");
             });
 
             OnModelCreatingPartial(modelBuilder);

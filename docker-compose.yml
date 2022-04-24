@@ -6,7 +6,7 @@ volumes:
   data1-2:
 
 x-minio-common: &minio-common
-  image: quay.io/minio/minio:RELEASE.2022-03-05T06-32-39Z
+  image: minio/minio
   command: server --console-address ":9001" /data1
   expose:
     - "9000"
@@ -24,6 +24,17 @@ x-minio-common: &minio-common
     retries: 3
 
 services:
+  nginx:
+    container_name: Nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    image: nginx:latest
+    depends_on:
+      - messenger
+    volumes:
+      - ./nginx/:/etc/nginx:ro
   minio1:
     <<: *minio-common
     hostname: minio1
@@ -40,16 +51,18 @@ services:
     depends_on: 
       - database
     ports:
-      - "80:80"
-      - "443:443"
-    restart: always
+      - "1443"
+      - "180"
     environment: 
       - DBHOST=database
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_URLS=https://+:1443;http://+:180
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=741b1cdd-7ff1-4fe8-b924-8a6ee1f005b1
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/etc/https/certificate.pfx
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
       - ~/.aspnet/https:/https:ro
+      - ./nginx/privateCertificate.pfx:/etc/https/certificate.pfx:ro
   database:
     container_name: MySQLDB
     image: mysql:latest
@@ -57,7 +70,6 @@ services:
       - "3306:3306"
     volumes:
       - datafiles:/var/lib/mysql
-      - "./messenger.sql:/docker-entrypoint-initdb.d"
     restart: always
     environment: 
       - MYSQL_USER=admin
