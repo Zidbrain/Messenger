@@ -8,7 +8,7 @@ namespace Messenger.Controllers;
 /// <summary>
 /// Контроллер для управления изображениями (аватарками) ползьвателей. Все действия требуют аунтетификации.
 /// </summary>
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ImagesController : ControllerBase

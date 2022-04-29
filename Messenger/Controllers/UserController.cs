@@ -29,7 +29,7 @@ public record class UserAuthInfo
 /// <summary>
 /// Контроллер информации о пользователях
 /// </summary>
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Produces("application/json")]
 public class UserController : ControllerBase

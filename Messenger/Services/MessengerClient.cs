@@ -54,16 +54,34 @@ public class MessengerClient
         return message;
     }
 
+    private async Task SendData<TMessage>(TMessage message, CancellationToken cancellationToken)
+    {
+        using var stream = new MemoryStream();
+        await JsonSerializer.SerializeAsync(stream, message, new JsonSerializerOptions(JsonSerializerDefaults.Web), cancellationToken);
+        await _webSocket.SendAsync(stream.GetBuffer(), WebSocketMessageType.Text, true, cancellationToken);
+    }
+
+    public async Task SendMessageArrayAsync(Message[] messages, CancellationToken cancellationToken)
+    {
+        var prevs = new Guid[messages.Length];
+        for (int i=0; i<messages.Length; i++)
+        {
+            prevs[i] = messages[i].UserTo;
+            messages[i].UserTo = default;
+        }
+
+        await SendData(messages, cancellationToken);
+
+        for (int i = 0; i < messages.Length; i++)
+            messages[i].UserTo = prevs[i];
+    }
+
     public async Task SendToClientAsync(Message message, CancellationToken cancellationToken)
     {
         var prev = message.UserTo;
         message.UserTo = default;
 
-        using var stream = new MemoryStream();
-
-        await JsonSerializer.SerializeAsync(stream, message, new JsonSerializerOptions(JsonSerializerDefaults.Web), cancellationToken);
-
-        await _webSocket.SendAsync(stream.GetBuffer(), WebSocketMessageType.Text, true, cancellationToken);
+        await SendData(message, cancellationToken);
 
         message.UserTo = prev;
     }

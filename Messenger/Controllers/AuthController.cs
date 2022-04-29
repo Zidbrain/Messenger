@@ -39,7 +39,7 @@ public class TrackUser
 /// <summary>
 /// Контроллер авторизации пользователей.
 /// </summary>
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Produces("application/json")]
 public class AuthController : ControllerBase

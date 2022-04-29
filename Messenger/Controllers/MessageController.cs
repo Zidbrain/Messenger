@@ -8,7 +8,7 @@ namespace Messenger.Controllers;
 /// <summary>
 /// Контроллирует сообщения
 /// </summary>
-[Route("messenger")]
+[Route("api/messenger")]
 [ApiController]
 [Produces("application/json")]
 public class MessageController : ControllerBase

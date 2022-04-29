@@ -35,6 +35,7 @@ services:
       - messenger
     volumes:
       - ./nginx/:/etc/nginx:ro
+      - ./frontend/:/etc/frontend:ro
   minio1:
     <<: *minio-common
     hostname: minio1
@@ -61,8 +62,7 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/etc/https/certificate.pfx
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
-      - ~/.aspnet/https:/https:ro
-      - ./nginx/privateCertificate.pfx:/etc/https/certificate.pfx:ro
+      - ./nginx/domain.pfx:/etc/https/certificate.pfx:ro
   database:
     container_name: MySQLDB
     image: mysql:latest

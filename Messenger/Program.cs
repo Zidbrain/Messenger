@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Rewrite;
 using System.Reflection;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,12 +73,20 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-var options = new RewriteOptions();
-options.AddRedirect("^$", "swagger");
-app.UseRewriter(options);
+app.MapGet("/api", () =>
+{
+    return Results.LocalRedirect("/api/swagger");
+});
 
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwagger(c =>
+{
+    c.RouteTemplate = "api/swagger/{documentname}/swagger.json";
+});
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Messenger API");
+    c.RoutePrefix = "api/swagger";
+});
 
 app.UseWebSockets(new WebSocketOptions() { KeepAliveInterval = TimeSpan.FromSeconds(10) });
 
