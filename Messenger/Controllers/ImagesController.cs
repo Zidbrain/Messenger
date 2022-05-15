@@ -48,7 +48,7 @@ public class ImagesController : ControllerBase
         AuthUser user;
         try
         {
-            var src = $"{jwt.Id}{extension}";
+            var src = $"{jwt!.Id}{extension}";
 
             using var stream = file.OpenReadStream();
             await _fileService.SaveFile("userimages", src, stream);
@@ -61,7 +61,7 @@ public class ImagesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error uploading file from {0}:{1}", jwt.Id, ex);
+            _logger.LogError("Error uploading file from {0}:{1}", jwt!.Id, ex);
             return Conflict("Error uploading file");
         }
 

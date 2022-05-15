@@ -79,16 +79,26 @@ public class AuthController : ControllerBase
         if (identity == null)
             return BadRequest(new { errorText = "Invalid username or password" });
 
-        var now = DateTime.UtcNow;
-        var jwt = new JwtSecurityToken(
-            issuer: JwtTokenStatics.Issuer,
-            audience: JwtTokenStatics.Audience,
-            notBefore: now,
-            expires: now.AddMinutes(60),
-            claims: identity.Claims,
-            signingCredentials: new SigningCredentials(JwtTokenStatics.SecurityKey, SecurityAlgorithms.HmacSha256)
-            );
-        var encoded = new JwtSecurityTokenHandler().WriteToken(jwt);
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = identity,
+            Issuer = JwtTokenStatics.Issuer,
+            Audience = JwtTokenStatics.Audience,
+            NotBefore = DateTime.Now,
+            SigningCredentials = new SigningCredentials(JwtTokenStatics.SecurityKey, SecurityAlgorithms.HmacSha256)
+        };
+        var encoded =  tokenHandler.CreateEncodedJwt(tokenDescriptor);
+
+        //var now = DateTime.UtcNow;
+        //var jwt = new JwtSecurityToken(
+        //    issuer: JwtTokenStatics.Issuer,
+        //    audience: JwtTokenStatics.Audience,
+        //    notBefore: now,
+        //    claims: identity.Claims,
+        //    signingCredentials: new SigningCredentials(JwtTokenStatics.SecurityKey, SecurityAlgorithms.HmacSha256)
+        //    );
+        //var encoded = new JwtSecurityTokenHandler().WriteToken(jwt);
 
         return Ok(new AccessTokenJSON(encoded));
     }

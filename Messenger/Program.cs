@@ -57,7 +57,6 @@ builder.Services
         ValidIssuer = JwtTokenStatics.Issuer,
         ValidAudience = JwtTokenStatics.Audience,
         ValidateAudience = true,
-        ValidateLifetime = true,
 
         IssuerSigningKey = JwtTokenStatics.SecurityKey,
         ValidateIssuerSigningKey = true
@@ -73,6 +72,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
+app.UseWebSockets();
+
 app.MapGet("/api", () =>
 {
     return Results.LocalRedirect("/api/swagger");
@@ -87,10 +88,6 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Messenger API");
     c.RoutePrefix = "api/swagger";
 });
-
-app.UseWebSockets(new WebSocketOptions() { KeepAliveInterval = TimeSpan.FromSeconds(10) });
-
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 app.UseAuthentication();
