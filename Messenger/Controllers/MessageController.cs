@@ -43,6 +43,28 @@ public class MessageController : ControllerBase
         return Ok(await _context.Messages.Where(m => m.UserTo == jwt!.Id || m.UserFrom == jwt.Id).ToListAsync());
     }
 
+    /// <summary>
+    /// Получить историю сообщений для двух конкретных пользователей. Первый пользователь по JWT.
+    /// </summary>
+    /// <param name="userID">Второй пользователь</param>
+    /// <returns>Массив сообщений между двумя пользователями</returns>
+    /// <response code="401">Ошибка авторизации</response>
+    /// <response code="200">История сообщений</response>
+    /// <response code="404">Пользователь с заданным userId не был найден</response>
+    [HttpGet("history/{userID}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ProducesResponseType(typeof(List<Message>), 200)]
+    public async Task<IActionResult> GetHistoryWith(Guid userID)
+    {
+        if (!await _context.AuthUsers.AnyAsync(u => u.Id == userID))
+            return NotFound($"User with id: {userID} was not found");
+
+        var jwt = await JwtTokenStatics.GetUserInfoAsync(HttpContext);
+
+        return Ok(await _context.Messages.Where(m => m.UserTo == jwt!.Id && m.UserFrom == userID ||
+                                                     m.UserTo == userID && m.UserFrom == jwt.Id).ToListAsync());
+    }
+
 
     /// <summary>
     /// Endpoint для подключения к мессенджеру по websocket.
@@ -52,7 +74,6 @@ public class MessageController : ControllerBase
     /// <response code="404">Указанный пользователь не найден</response>
     /// <param name="accessToken">JWT-токен доступа</param>
     [HttpGet("connect")]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task Connect(string accessToken)
     {
         if (!HttpContext.WebSockets.IsWebSocketRequest)
