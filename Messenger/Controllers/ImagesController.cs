@@ -65,7 +65,7 @@ public class ImagesController : ControllerBase
             return Conflict("Error uploading file");
         }
 
-        return CreatedAtAction(nameof(GetImage), user.Id, null);
+        return CreatedAtAction(nameof(GetImage), new { userID = jwt.Id }, null);
     }
 
     /// <summary>
