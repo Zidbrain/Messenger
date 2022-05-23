@@ -62,7 +62,9 @@ public class MessageController : ControllerBase
         var jwt = await JwtTokenStatics.GetUserInfoAsync(HttpContext);
 
         return Ok(await _context.Messages.Where(m => m.UserTo == jwt!.Id && m.UserFrom == userID ||
-                                                     m.UserTo == userID && m.UserFrom == jwt.Id).ToListAsync());
+                                                     m.UserTo == userID && m.UserFrom == jwt.Id)
+            .OrderBy(t => t.DateSent)
+            .ToListAsync());
     }
 
 
