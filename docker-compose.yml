@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3.8'
 
 volumes:
   datafiles:
@@ -27,10 +27,16 @@ services:
   nginx:
     container_name: Nginx
     restart: always
-    ports:
-      - "80:80"
-      - "443:443"
     image: nginx:latest
+    ports:
+      - mode: host
+        protocol: tcp
+        published: 80
+        target: 80
+      - mode: host
+        protocol: tcp
+        published: 443
+        target: 443
     depends_on:
       - messenger
     volumes:
@@ -52,17 +58,11 @@ services:
     depends_on: 
       - database
     ports:
-      - "1443"
       - "180"
     environment: 
       - DBHOST=database
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:1443;http://+:180
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=741b1cdd-7ff1-4fe8-b924-8a6ee1f005b1
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/etc/https/certificate.pfx
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets/:/root/.microsoft/usersecrets
-      - ./nginx/domain.pfx:/etc/https/certificate.pfx:ro
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:180
   database:
     container_name: MySQLDB
     image: mysql:latest
