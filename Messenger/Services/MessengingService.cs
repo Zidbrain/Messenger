@@ -7,6 +7,23 @@ public class MessengingService
 {
     private readonly ConcurrentDictionary<Guid, MessengerClient> _clients = new();
 
+    private static async Task DeliverAllMessages(MessengerClient client, MessengerContext context, CancellationToken token)
+    {
+        var messages = client.UserInfo.MessageUserToNavigations.
+            Where(m => !m.IsDelivered)
+            .OrderBy(m => m.DateSent)
+            .ToArray();
+
+        await client.SendMessageArrayAsync(messages, token);
+
+        foreach (var message in messages)
+        {
+            message.IsDelivered = true;
+        }
+
+        await context.SaveChangesAsync(token);
+    }
+
     public async Task HandleMessages(MessengerClient client, MessengerContext context)
     {
         (var user, var webSocket) = (client.UserInfo, client.WebSocket);
@@ -18,13 +35,7 @@ public class MessengingService
 
         try
         {
-            foreach (var message in user.MessageUserToNavigations.Where(m => !m.IsDelivered))
-            {
-                await _clients[user.Id].SendToClientAsync(message, token);
-                message.IsDelivered = true;
-            }
-
-            await context.SaveChangesAsync();
+            await DeliverAllMessages(client, context, token);
 
             while (true)
             {

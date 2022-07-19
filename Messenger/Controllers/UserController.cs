@@ -29,7 +29,7 @@ public record class UserAuthInfo
 /// <summary>
 /// Контроллер информации о пользователях
 /// </summary>
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Produces("application/json")]
 public class UserController : ControllerBase
@@ -60,8 +60,10 @@ public class UserController : ControllerBase
     [HttpGet]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(typeof(ClientUserInfo), 200)]
-    public async Task<IActionResult> GetUserInfo([FromQuery] Guid id)
+    public async Task<IActionResult> GetUserInfo()
     {
+        var id = (await JwtTokenStatics.GetUserInfoAsync(HttpContext))!.Id;
+
         var user = await _context.AuthUsers.FirstOrDefaultAsync(x => x.Id == id);
         if (user == null)
             return NotFound();

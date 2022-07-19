@@ -5,7 +5,7 @@
     "version": "v1"
   },
   "paths": {
-    "/auth": {
+    "/api/auth": {
       "post": {
         "tags": [
           "Auth"
@@ -49,7 +49,7 @@
         }
       }
     },
-    "/file": {
+    "/api/file": {
       "get": {
         "tags": [
           "File"
@@ -140,7 +140,7 @@
         ]
       }
     },
-    "/images": {
+    "/api/images": {
       "post": {
         "tags": [
           "Images"
@@ -187,7 +187,7 @@
         ]
       }
     },
-    "/images/{userID}": {
+    "/api/images/{userID}": {
       "get": {
         "tags": [
           "Images"
@@ -229,7 +229,7 @@
         ]
       }
     },
-    "/messenger/history": {
+    "/api/messenger/history": {
       "get": {
         "tags": [
           "Message"
@@ -260,17 +260,63 @@
         ]
       }
     },
-    "/messenger/connect": {
+    "/api/messenger/history/{userID}": {
       "get": {
         "tags": [
           "Message"
         ],
-        "summary": "Endpoint для подключения к мессенджеру по websocket. Пока не требует авторизации, сообщения отправляются от имени указанного пользователя.",
+        "summary": "Получить историю сообщений для двух конкретных пользователей. Первый пользователь по JWT.",
         "parameters": [
           {
-            "name": "username",
+            "name": "userID",
+            "in": "path",
+            "description": "Второй пользователь",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "История сообщений",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Message"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Ошибка авторизации"
+          },
+          "404": {
+            "description": "Пользователь с заданным userId не был найден"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/messenger/connect": {
+      "get": {
+        "tags": [
+          "Message"
+        ],
+        "summary": "Endpoint для подключения к мессенджеру по websocket.",
+        "parameters": [
+          {
+            "name": "accessToken",
             "in": "query",
-            "description": "Имя пользователя в качестве которого требуется авторизироваться",
+            "description": "JWT-токен доступа",
             "schema": {
               "type": "string"
             }
@@ -289,7 +335,19 @@
         }
       }
     },
-    "/user/all": {
+    "/api": {
+      "get": {
+        "tags": [
+          "Messenger"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/user/all": {
       "get": {
         "tags": [
           "User"
@@ -320,7 +378,7 @@
         ]
       }
     },
-    "/user": {
+    "/api/user": {
       "get": {
         "tags": [
           "User"
@@ -411,7 +469,7 @@
         ]
       }
     },
-    "/user/register": {
+    "/api/user/register": {
       "post": {
         "tags": [
           "User"
@@ -543,7 +601,13 @@
           },
           "content": {
             "type": "string",
-            "description": "Содержание сообщения.",
+            "description": "Текстовое содержание сообщения.",
+            "nullable": true
+          },
+          "fileID": {
+            "type": "string",
+            "description": "Файл, содержащийся в сообщении (при наличии)",
+            "format": "uuid",
             "nullable": true
           },
           "dateSent": {

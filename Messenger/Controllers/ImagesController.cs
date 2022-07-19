@@ -8,7 +8,7 @@ namespace Messenger.Controllers;
 /// <summary>
 /// Контроллер для управления изображениями (аватарками) ползьвателей. Все действия требуют аунтетификации.
 /// </summary>
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ImagesController : ControllerBase
@@ -48,7 +48,7 @@ public class ImagesController : ControllerBase
         AuthUser user;
         try
         {
-            var src = $"{jwt.Id}{extension}";
+            var src = $"{jwt!.Id}{extension}";
 
             using var stream = file.OpenReadStream();
             await _fileService.SaveFile("userimages", src, stream);
@@ -61,11 +61,11 @@ public class ImagesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error uploading file from {0}:{1}", jwt.Id, ex);
+            _logger.LogError("Error uploading file from {0}:{1}", jwt!.Id, ex);
             return Conflict("Error uploading file");
         }
 
-        return CreatedAtAction(nameof(GetImage), user.Id, null);
+        return CreatedAtAction(nameof(GetImage), new { userID = jwt.Id }, null);
     }
 
     /// <summary>

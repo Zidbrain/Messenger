@@ -4,7 +4,7 @@
       "commandName": "DockerCompose",
       "composeLaunchAction": "LaunchBrowser",
       "composeLaunchServiceName": "messenger",
-      "composeLaunchUrl": "https://localhost:443/",
+      "composeLaunchUrl": "https://localhost:443/api/",
       "commandVersion": "1.0",
       "serviceActions": {
         "database": "StartWithoutDebugging",

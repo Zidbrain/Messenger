@@ -25,7 +25,7 @@
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder
-                    .UseMySql(_configuration["Messenger:DatabaseConnectionString"], Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.27-mysql"))
+                    .UseMySql("server=database;port=3306;database=messenger;uid=root;", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.27-mysql"))
                     .UseLazyLoadingProxies();
             }
         }

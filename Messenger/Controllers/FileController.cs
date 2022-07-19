@@ -5,7 +5,7 @@ using Minio.Exceptions;
 
 namespace Messenger.Controllers;
 
-[Route("file")]
+[Route("api/file")]
 [ApiController]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class FileController : ControllerBase
