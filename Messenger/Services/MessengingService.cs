@@ -73,7 +73,7 @@ public class MessengingService
             source.Cancel();
             _clients.TryRemove(user.Id, out _);
 
-            if (webSocket.State is not WebSocketState.Closed)
+            if (webSocket.State is not WebSocketState.Closed and not WebSocketState.Aborted)
                 await webSocket.CloseAsync(WebSocketCloseStatus.EndpointUnavailable, null, CancellationToken.None);
         }
     }
