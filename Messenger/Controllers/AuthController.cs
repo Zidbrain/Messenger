@@ -55,7 +55,7 @@ public class AuthController : ControllerBase
        _context = context;
     }
 
-    private record class AccessTokenJSON(string AccesToken);
+    private record class AccessTokenJSON(string AccessToken);
 
     /// <summary>
     /// Получить токен аунтетификации пользователя.
